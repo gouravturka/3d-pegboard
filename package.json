@@ -1,0 +1,20 @@
+{
+  "name": "pegboard",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "npm run build:1 && npm run build:2",
+    "build:1": "jscad src/bars/bar-6-17mm.js -o build/output-1.stl -of stla",
+    "build:2": "jscad src/bars/bar-18-27mm.js -o build/output-2.stl -of stla",
+    "build:3": "jscad src/bars/bar-test-18-22mm.js -o build/output-3.stl -of stla",
+    "build:4": "jscad src/bars/bar-test-comb-22-24-30mm.js -o build/output-4.stl -of stla"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@jscad/cli": "^2.3.8",
+    "@jscad/modeling": "^2.13.0"
+  }
+}
