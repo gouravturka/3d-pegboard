@@ -1,4 +1,4 @@
-const { buildRack } = require("../rack");
+const { buildRack } = require("../../rack");
 
 // Bar 2: combo spanners 18-19, 19-22, 24-27 (shared "19" post serves both
 // the 18-19 and 19-22 tools)

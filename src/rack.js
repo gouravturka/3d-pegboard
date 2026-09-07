@@ -21,6 +21,7 @@ const POST_SPACING = 35.0; // Fallback distance between posts when outer size is
 const SIDE_MARGIN = 20.0; // Fallback margin from bar end when outer size is unknown
 const SPANNER_CLEARANCE = 5.0; // Min gap between adjacent spanner heads when hung
 const PEG_MIN_SLACK = 20.0; // mm, min extra room beyond one PEG_PITCH step so a bar always fits >=2 board pegs
+const MAX_PRINT_LENGTH = 250.0; // mm, safe usable length on a Bambu Lab A1's 256x256mm bed (leaves a few mm margin for brim/skirt) - split a tool list across multiple bar files if it would exceed this
 
 // --- Hook Post Constants (alternative to the hex post, easier on/off) ---
 const HOOK_ROD_RADIUS = 3.0; // mm
@@ -29,10 +30,13 @@ const HOOK_DROP_LENGTH = 12.0; // mm, downward lip that stops the tool sliding o
 const HOOK_TILT = Math.PI / 2 + (5 * Math.PI) / 180; // same tilt as the hex post, for consistent mounting
 
 // --- Comb (blade-slot) Holder Constants ---
+// The wrench lies on its side and projects forward (Y), out from the board,
+// rather than hanging down - gripped edge-on between two teeth by its blade
+// thickness (X), resting by gravity on the shared Z=0 floor.
 const COMB_BASE_HEIGHT = 12.0; // mm, flat baseplate strip the teeth are rooted in
 const TOOTH_THICKNESS = 6.0; // mm, divider width (X) between adjacent slots
-const TOOTH_REACH = 25.0; // mm, how far each tooth reaches forward (Y), away from the board
-const TOOTH_Z_HEIGHT = 65.0; // mm, tooth height (Z) - must cover the tallest wrench face among the slots (measured 30-32 face: ~59.86-62.87mm), or the tool is unsupported above/below the tooth
+const TOOTH_HEIGHT = 25.0; // mm, tooth height (Z) - must cover the tallest wrench face's width among the slots, or the tool is unsupported top/bottom in the slot
+const TOOTH_REACH = 65.0; // mm, how far each tooth reaches forward (Y), away from the board - must cover the tallest wrench face's length among the slots (measured 30-32 face: ~59.86-62.87mm), or the flare cantilevers unsupported past the tooth
 const GAP_CLEARANCE = 0.3; // mm, added to each slot's measured blade thickness for easy insertion
 
 // --- Engraved Label Constants ---
@@ -136,6 +140,19 @@ const buildPegRow = (leftBound, rightBound, zCenter) => {
   return pegParts;
 };
 
+// Warns (doesn't throw - a bar over the limit still slices/prints fine on a
+// larger printer, this project just defaults to a Bambu Lab A1) when a
+// computed bar length won't fit a single Bambu Lab A1 build plate, so an
+// oversized tool list gets caught at generation time instead of at slicing
+// time.
+const warnIfTooLong = (barLength) => {
+  if (barLength > MAX_PRINT_LENGTH) {
+    console.warn(
+      `rack.js: bar length ${barLength.toFixed(1)}mm exceeds the ${MAX_PRINT_LENGTH}mm safe print length for a Bambu Lab A1 bed - split this tool list across multiple bar files.`
+    );
+  }
+};
+
 // Shared rack builder: takes a list of spanner sizes (across-flats, mm, plain
 // numbers or { acrossFlats, outerSize } objects) and produces one printable
 // bar sized to fit exactly those posts, split across bars so each stays under
@@ -175,6 +192,7 @@ const buildRack = (postSizes, options = {}) => {
   const minBarLengthForPegs =
     postX[0] + PEG_PITCH + PEG_MIN_SLACK + marginFor(posts[posts.length - 1]);
   barLength = Math.max(barLength, minBarLengthForPegs);
+  warnIfTooLong(barLength);
 
   // 1. Base Mounting Bar
   let baseBar = cuboid({
@@ -217,18 +235,20 @@ const buildRack = (postSizes, options = {}) => {
 };
 
 // Comb-style holder: a row of simple straight teeth (dividers) where each
-// wrench slides down edge-on into the gap between two adjacent teeth,
-// gripped against its flat blade sides rather than by jaw diameter or a hex
-// fit. Weight rests on the baseplate (like books in a narrow slot), so the
-// gap just needs to clear the blade thickness with a bit of margin - it
-// doesn't need to be a precise friction fit.
+// wrench slides in edge-on from the front into the gap between two adjacent
+// teeth, gripped against its flat blade sides rather than by jaw diameter or
+// a hex fit. The gripped end rests by gravity on the shared Z=0 floor (like
+// a ruler lying flat in a narrow slot) and the tool projects forward, away
+// from the board, rather than hanging down - so the gap just needs to clear
+// the blade thickness with a bit of margin, it doesn't need to be a precise
+// friction fit.
 // `slots`: ordered array of { size, thickness } (thickness = the wrench
 // blade's actual measured thickness at that end, mm). N slots need N+1
 // teeth; the outer two teeth bookend the first and last slot.
 const buildComb = (slots, options = {}) => {
   const toothThickness = options.toothThickness ?? TOOTH_THICKNESS;
+  const toothHeight = options.toothHeight ?? TOOTH_HEIGHT;
   const toothReach = options.toothReach ?? TOOTH_REACH;
-  const toothZHeight = options.toothZHeight ?? TOOTH_Z_HEIGHT;
   const baseHeight = options.baseHeight ?? COMB_BASE_HEIGHT;
   const sideMarginDefault = options.sideMargin ?? SIDE_MARGIN;
 
@@ -249,6 +269,7 @@ const buildComb = (slots, options = {}) => {
   // PEG_PITCH can't be stretched or compressed to fit.
   const minBarLengthForPegs = sideMarginDefault + PEG_PITCH + PEG_MIN_SLACK + sideMarginDefault;
   barLength = Math.max(barLength, minBarLengthForPegs);
+  warnIfTooLong(barLength);
 
   // If the peg requirement stretched the bar beyond the natural tooth
   // pattern's width, center the pattern rather than leaving it flush left.
@@ -265,14 +286,17 @@ const buildComb = (slots, options = {}) => {
 
   // 2. Teeth: reach forward in Y (away from the board, same direction as the
   // hex/hook posts - opposite of the pegs, which reach backward into the
-  // board) rather than standing tall in Z. The wrench slides in horizontally,
-  // gripped by its blade thickness (the X gap between two adjacent teeth).
-  // Each tooth's back face is flush with the baseplate's own back face and
-  // spans its full Y range, guaranteeing a solid connection.
+  // board), standing only a short band tall in Z. The wrench lies on its
+  // side and slides in edge-on from the front, gripped by its blade
+  // thickness (the X gap between two adjacent teeth) and resting by gravity
+  // on the Z=0 floor shared with the baseplate, so it projects outward
+  // rather than hanging down. Each tooth's back face is flush with the
+  // baseplate's own back face and spans its full reach, guaranteeing a
+  // solid connection.
   finalTeethStartX.forEach((startX) => {
     let tooth = cuboid({
-      size: [toothThickness, toothReach, toothZHeight],
-      center: [startX + toothThickness / 2, BAR_THICK - toothReach / 2, toothZHeight / 2],
+      size: [toothThickness, toothReach, toothHeight],
+      center: [startX + toothThickness / 2, BAR_THICK - toothReach / 2, toothHeight / 2],
     });
     parts.push(tooth);
   });

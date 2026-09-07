@@ -1,4 +1,4 @@
-const { buildRack, engraveLabel } = require("../rack");
+const { buildRack, engraveLabel } = require("../../rack");
 
 // Bar 3 (test): 18mm and 22mm spanners hung on L-hooks instead of hex bosses
 // (easier on/off), with an engraved "18-22" label. Same outerSize-based

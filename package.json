@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "build": "npm run build:1 && npm run build:2",
-    "build:1": "jscad src/bars/bar-6-17mm.js -o build/output-1.stl -of stla",
-    "build:2": "jscad src/bars/bar-18-27mm.js -o build/output-2.stl -of stla",
-    "build:3": "jscad src/bars/bar-test-18-22mm.js -o build/output-3.stl -of stla",
-    "build:4": "jscad src/bars/bar-test-comb-22-24-30mm.js -o build/output-4.stl -of stla"
+    "build": "npm run build:spanner:6-17 && npm run build:spanner:18-27 && npm run build:spanner:test-18-22 && npm run build:wrench:test-6-16 && npm run build:wrench:test-18-30",
+    "build:spanner:6-17": "jscad src/bars/spanners/bar-6-17mm.js -o build/spanners/bar-6-17mm.stl -of stla",
+    "build:spanner:18-27": "jscad src/bars/spanners/bar-18-27mm.js -o build/spanners/bar-18-27mm.stl -of stla",
+    "build:spanner:test-18-22": "jscad src/bars/spanners/bar-test-18-22mm.js -o build/spanners/bar-test-18-22mm.stl -of stla",
+    "build:wrench:test-6-16": "jscad src/bars/wrenches/bar-test-6-16mm.js -o build/wrenches/bar-test-6-16mm.stl -of stla",
+    "build:wrench:test-18-30": "jscad src/bars/wrenches/bar-test-18-30mm.js -o build/wrenches/bar-test-18-30mm.stl -of stla"
   },
   "keywords": [],
   "author": "",

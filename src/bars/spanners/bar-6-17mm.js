@@ -1,4 +1,4 @@
-const { buildRack } = require("../rack");
+const { buildRack } = require("../../rack");
 
 // Bar 1: small single spanners 6-10mm plus combo spanners 12-13, 16-17
 // (tight spacing baseline; combo entries self-override via outerSize)
