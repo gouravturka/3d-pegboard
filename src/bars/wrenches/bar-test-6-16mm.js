@@ -23,5 +23,4 @@ const slots = [
 
 const main = () => buildComb(slots);
 
-// Testing purpose
 module.exports = { main };
