@@ -15,7 +15,7 @@ export GIT_SSH_COMMAND="${GIT_SSH_COMMAND:-ssh -o BatchMode=yes}"
 
 # Host alias from ~/.ssh/config, not github.com, because the key that reaches these
 # repos is bound to an alias. Override with SSH_HOST=... for a different account.
-SSH_HOST="${SSH_HOST:-github-turka}"
+SSH_HOST="${SSH_HOST:-gouravturka}"
 
 WORKFLOW_PATH=".github/workflows/snapshot-to-s3.yml"
 WORKDIR="$(mktemp -d)"
