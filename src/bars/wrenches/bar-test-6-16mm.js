@@ -9,7 +9,7 @@ const { buildComb } = require("../../rack");
 // guess means the tool doesn't fit. Measure each blade for real and replace
 // these before printing.
 console.warn(
-  "bar-test-6-16mm.js: slot thicknesses are PLACEHOLDERS, not measured - verify with calipers before printing."
+  "bar-test-6-16mm.js: slot thicknesses are PLACEHOLDERS, not measured - verify with calipers before printing.",
 );
 
 const slots = [
